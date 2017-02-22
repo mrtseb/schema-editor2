@@ -36,6 +36,7 @@ type
     Ouvrir1: TMenuItem;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
+    SpeedButton6: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -71,7 +72,8 @@ type
     procedure relie(a,b:string;mode:boolean);
     procedure analyse;
     procedure reset;
-    procedure gere_sim(s:string);
+    procedure do_simul(t:string;val:integer);
+    procedure gere_sim(s:string;val:integer);
     procedure redraw;
     Procedure load_bmp(p:pentry);
     procedure Process1Read(Sender: TObject; const S: string);
@@ -116,6 +118,7 @@ begin
    bmp.Transparent :=true;
    bmp.TransparentColor:=clFuchsia;
    bmp.canvas.pen.Color:=clblack;
+   bmp.canvas.Font.Size:=6;
    bmp.Canvas.brush.Color:=self.color;
    bmp.Canvas.TextOut(0,0,p^.letter);
 
@@ -126,7 +129,7 @@ begin
 end;
 
 
-Procedure Tform1.gere_sim(s:string);
+Procedure Tform1.gere_sim(s:string;val:integer);
 var p:pentry;
 
 begin
@@ -134,37 +137,34 @@ begin
         p:=schema.l.Items[strtoint(s)];
         if p^.device ='P' then exit;
         if p^.device ='N' then exit;
-        if p^.device ='LMP0' then exit;
 
-        if p^.device[3]='0' then p^.device[3]:='1' else p^.device[3]:='0';
-        {
-        if p^.device ='NO0' then begin
-            p^.device:='NO1';
-        end else
-        if p^.device ='NO1' then begin
-            p^.device:='NO0';
-        end else
-        if p^.device ='NF0' then begin
-            p^.device:='NF1';
-        end else
-        if p^.device ='NF1' then begin
-            p^.device:='NF0';
-        end;
-        }
+
+        if (pos('NF', p^.device ) > 0) or (pos('NO', p^.device) >0) then if p^.device[3]='0' then p^.device[3]:='1' else p^.device[3]:='0';
+
+        //if pos('LMP', p^.device ) > 0 then if p^.device[4]='0' then p^.device[4]:='1' else p^.device[4]:='0';
+        //if pos('REL', p^.device ) > 0 then if p^.device[4]='0' then p^.device[4]:='1' else p^.device[4]:='0';
+
         self.load_bmp(p);
 
 end;
 
 procedure Tform1.simul_letter(Sender: TObject);
+var v:integer;
+begin
+   if (sender as Tcheckbox).Checked then v:=10 else v:=0;
+   do_simul((sender as Tcheckbox).caption,v);
+end;
+
+procedure Tform1.do_simul(t:string;val:integer);
 var l:Tlist;
 i:integer;
 p: pentry;
 begin
  l:=Tlist.create;
- l:=schema.trouve_by_letter((sender as Tcheckbox).caption);
+ l:=schema.trouve_by_letter(t);
  for i := 0 to l.Count-1 do begin
    p:=l[i];
-   gere_sim(inttostr(p^.num));
+   gere_sim(inttostr(p^.num),val);
  end;
  self.Simuler1Click(self);
  l.Free;
@@ -176,49 +176,45 @@ begin
  //self.caption:=letter;
 end;
 procedure Tform1.analyse;
-var i:integer;
+var i,j:integer;
     v1,v2:double;
     pp:pentry;
     bmp:Tbitmap;
+    change1:boolean;
+    change2:boolean;
 begin
 
 bmp:=Tbitmap.create;
 
 for i:=0 to self.schema.l.Count-1 do begin
     pp:=self.schema.l[i];
-    if pos('LMP',pp^.device) > 0 then begin
+    if (pos('LMP',pp^.device) > 0) or (pos('REL',pp^.device) > 0 )then begin
+
       if dico['V('+inttostr(pp^.pin1)+')']='' then dico['V('+inttostr(pp^.pin1)+')']:='0,0';
       if dico['V('+inttostr(pp^.pin2)+')']='' then dico['V('+inttostr(pp^.pin2)+')']:='0,0';
       v1:= strtofloat(dico['V('+inttostr(pp^.pin1)+')']);
       if pp^.pin2=0 then v2:= 0.0 else v2:=strtofloat(dico['V('+inttostr(pp^.pin2)+')']);
-      //memo2.lines.add(floattostr(v1));
-      //memo2.lines.add(floattostr(v2));
-      if pp^.device ='LMP0' then if v1-v2>5 then begin
-            pp^.device:='LMP1';
-            bmp.Width:=33;
-            bmp.Height:=33;
-            bmp.Canvas.Brush.Color:=form1.Color;
-            bmp.Canvas.FillRect(Rect(0,0,33,33));
-            form1.Canvas.Draw(pp^.X,pp^.Y,bmp);
-            bmp.loadfromFile(extractfilepath(Application.exename)+'img\LMP1.bmp');
-            bmp.Transparent :=true;
-            bmp.TransparentColor:=clFuchsia;
-            form1.Canvas.Draw(pp^.X,pp^.Y,bmp);
-            continue;
+
+      change1 :=(v1-v2>5) and (pp^.device[4]='0');
+      if change1 then pp^.device[4]:='1';
+
+      change2 :=(v1-v2<1) and(pp^.device[4]='1');
+      if change2 then pp^.device[4]:='0';
+      if change1 or change2 then begin
+      self.load_bmp(pp);
+      //memo2.Lines.Add(pp^.letter);
+      for j:=0 to self.box_check.ControlCount-1 do begin
+        if (pp^.letter = (self.box_check.Controls[j] as Tradiobutton).Caption) then
+        begin
+
+          //memo2.lines.add(pp^.letter+ inttostr(round(v1-v2)));
+          do_simul(pp^.letter, round(v1-v2));
         end;
-        if pp^.device ='LMP1' then if v1-v2< 1 then begin
-            pp^.device:='LMP0';
-            bmp.Width:=33;
-            bmp.Height:=33;
-            bmp.Canvas.Brush.Color:=form1.Color;
-            bmp.Canvas.FillRect(Rect(0,0,33,33));
-            form1.Canvas.Draw(pp^.X,pp^.Y,bmp);
-            bmp.loadfromFile(extractfilepath(Application.exename)+'img\LMP0.bmp');
-            bmp.Transparent :=true;
-            bmp.TransparentColor:=clFuchsia;
-            form1.Canvas.Draw(pp^.X,pp^.Y,bmp);
-            continue;
-        end;
+      end;
+      continue;
+      end;
+
+
 
     end;
 end;
@@ -347,7 +343,7 @@ var i:integer;
     ck2:Tcheckbox;
 begin
 
-for i:=1 to 26 do begin
+for i:=1 to 10 do begin
   ck:= Tradiobutton.Create(self.box_check);
   ck.Name:='int'+chr(64+i);
   ck.Parent := self.box_check;
@@ -355,7 +351,7 @@ for i:=1 to 26 do begin
   ck.Caption:=chr(64+i);
   ck.Tag := i;
   ck.Width:=27;
-  ck.left:=250+(i-1)*30;
+  ck.left:=(i-1)*30;
   if i=1 then
   begin ck.Checked:=true;
   set_letter(ck);
@@ -420,6 +416,7 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
    e:Tentry;
    p:pEntry;
    s:string;
+   ck:Tradiobutton;
 
    begin
   try
@@ -455,14 +452,23 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
            end
         else
         begin
+        bmp.canvas.Font.Size:=6;
         if (choix=2) then bmp.Canvas.TextOut(0,0,'/'+letter);
         if (choix=3) then bmp.Canvas.TextOut(0,0,letter);
         if (choix>1) and (choix<4) then ;
         form1.Canvas.Draw(X,Y,bmp);
         end;
-
         schema.add_entry(X,Y,choix,letter);
-        memo2.Lines := schema.show_entries;
+        if choix>3 then begin
+          p:=schema.l[schema.l.count-1];
+          load_bmp(p);
+          ck:=Tradiobutton.Create(self.box_check);
+          ck.Parent:=self.box_check;
+          ck.Caption:=p^.letter;
+          ck.onclick:=set_letter;
+          ck.left:=(self.box_check.ControlCount-1)*32;
+        end;
+        //memo2.Lines := schema.show_entries;
         exit;
   end;
   //binding
@@ -523,11 +529,13 @@ schema.destroy;
 end;
 
 procedure TForm1.Stopper1Click(Sender: TObject);
+var i:integer;
 begin
 isSimulate:=false;
 timer1.Enabled:=false;
 self.box_check2.Visible:=false;
 self.box_check.Visible:=true;
+//for i:=0 to self.box_check2.ControlCount-1 do (self.box_check2.Controls[i] as Tcheckbox)
 end;
 
 procedure TForm1.Simuler1Click(Sender: TObject);

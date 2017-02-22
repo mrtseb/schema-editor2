@@ -13,7 +13,7 @@ type
      a: integer;
   end;
   Plink =^Tlink;
-  TDevice = record
+  TDevice = record                                                              
      Name : string;
      broches : integer;
    end;
@@ -62,13 +62,14 @@ type
 PEntry = ^TEntry;
 
 const
-   Devices : array[0..4] of TDevice =
+   Devices : array[0..5] of TDevice =
    (
      (Name : 'P'; broches : 1),
      (Name : 'N'; broches : 1),
      (Name : 'NF0'; broches : 2),
      (Name : 'NO0'; broches : 2),
-     (Name : 'LMP0'; broches : 2)
+     (Name : 'LMP0'; broches : 2),
+     (Name : 'REL0'; broches : 2)
    ) ;
 
 procedure Split(Delimiter: Char; Str: string; ListOfStrings: TStrings) ;
@@ -185,12 +186,10 @@ for i:=0 to self.l.Count-1 do begin
    p:=l[i];
    if p^.device = 'P' then s:='V1 1 0 10V';
    if p^.device = 'N' then continue;
-   if p^.device = 'NO0' then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1e9');
-   if p^.device = 'NF0' then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1');
-   if p^.device = 'NO1' then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1');
-   if p^.device = 'NF1' then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1e9');
-   if p^.device = 'LMP0' then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 500');
-   if p^.device = 'LMP1' then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 500');
+   if (p^.device = 'NO0') or (p^.device = 'NF1') then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1e9');
+   if (p^.device = 'NF0') or (p^.device = 'NO1') then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1');
+   if (pos('LMP',p^.device)>0) or (pos('REL',p^.device)>0) then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 500');
+
 
 
 end;
@@ -327,14 +326,16 @@ begin
    if self.dejala(X,Y) then exit;
    if (choix=0) and (alim) then exit;
    if not alim then if choix=0 then alim:=true;
-
+   e.num:=l.Count;
    if choix=2 then e.letter:='/'+letter
    else if choix=3 then e.letter:=letter else e.letter:='';
+   e.device:=devices[choix].Name;
+   if choix>3 then e.letter:= e.device[1]+inttostr(e.num);
 
    e.choix:=choix;
    e.X:=X;
    e.Y:=Y;
-   e.device:=devices[choix].Name;
+
    e.broches:=devices[choix].broches;
    self.nb_noeuds := self.nb_noeuds+e.broches;
    e._broches := self.nb_noeuds;
@@ -347,7 +348,7 @@ begin
      e.pin1 := self.nb_noeuds-1;
      e.pin2 := self.nb_noeuds;
    end;
-   e.num:=l.Count;
+
 
 
    new(p);

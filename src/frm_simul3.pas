@@ -31,6 +31,11 @@ type
     box_check: TPanel;
     memo2: TMemo;
     box_check2: TPanel;
+    Enregistrer1: TMenuItem;
+    Nouveau1: TMenuItem;
+    Ouvrir1: TMenuItem;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -44,6 +49,9 @@ type
     procedure Simuler1Click(Sender: TObject);
     procedure set_letter(Sender: TObject);
     procedure simul_letter(Sender: TObject);
+    procedure Enregistrer1Click(Sender: TObject);
+    procedure Nouveau1Click(Sender: TObject);
+    procedure Ouvrir1Click(Sender: TObject);
      private
     { DÃ©clarations privÃ©es }
 
@@ -60,9 +68,11 @@ type
     deb,fin:string;
     isSimulate, isPlacing,isBinding, spicing:boolean;
     schema:Tschema;
-    procedure relie(a,b:string);
+    procedure relie(a,b:string;mode:boolean);
     procedure analyse;
+    procedure reset;
     procedure gere_sim(s:string);
+    procedure redraw;
     Procedure load_bmp(p:pentry);
     procedure Process1Read(Sender: TObject; const S: string);
     procedure Process1Terminate(Sender: TObject; ExitCode: Cardinal);
@@ -72,6 +82,7 @@ end;
 var
   Form1: TForm1;
   letter: shortstring;
+
 
 implementation
 uses
@@ -86,20 +97,29 @@ uses
   {$R *.lfm}
 {$ENDIF}
 
+procedure Tform1.redraw;
+begin
+//
+end;
+
 Procedure Tform1.load_bmp(p:pentry);
 var bmp:Tbitmap;
 begin
    bmp:=Tbitmap.create;
    bmp.Width:=33;
    bmp.Height:=33;
-   bmp.Canvas.Brush.Color:=form1.Color;
+   bmp.Canvas.Brush.Color:=self.Color;
    bmp.Canvas.FillRect(Rect(0,0,33,33));
    form1.Canvas.Draw(p^.X,p^.Y,bmp);
+
    bmp.loadfromFile(extractfilepath(Application.exename)+'img\'+p^.device+'.bmp');
    bmp.Transparent :=true;
    bmp.TransparentColor:=clFuchsia;
    bmp.canvas.pen.Color:=clblack;
+   bmp.Canvas.brush.Color:=self.color;
    bmp.Canvas.TextOut(0,0,p^.letter);
+
+   bmp.Canvas.Pen.Color:=clFuchsia;
 
    form1.Canvas.Draw(p^.X,p^.Y,bmp);
    bmp.free;
@@ -115,6 +135,9 @@ begin
         if p^.device ='P' then exit;
         if p^.device ='N' then exit;
         if p^.device ='LMP0' then exit;
+
+        if p^.device[3]='0' then p^.device[3]:='1' else p^.device[3]:='0';
+        {
         if p^.device ='NO0' then begin
             p^.device:='NO1';
         end else
@@ -127,9 +150,9 @@ begin
         if p^.device ='NF1' then begin
             p^.device:='NF0';
         end;
-
+        }
         self.load_bmp(p);
-        
+
 end;
 
 procedure Tform1.simul_letter(Sender: TObject);
@@ -204,12 +227,11 @@ bmp.free;
 
 end;
 
-procedure Tform1.relie(a,b:string);
+procedure Tform1.relie(a,b:string;mode:boolean);
 var id_deb,id_fin:integer;
 
     t:Tstringlist;
     x1,y1,x2,y2, z1:integer;
-    lien:Tlink;
     s:string;
     p:Pentry;
 
@@ -222,8 +244,8 @@ begin
   if b='-' then exit;
 
 
-  id_deb:=strtoint(a);
-  id_fin:=strtoint(b);
+  id_deb:=strtoint(trim(a));
+  id_fin:=strtoint(trim(b));
 
   x1:=schema.trouve_by_id(id_deb).X;
   y1:=schema.trouve_by_id(id_deb).Y+33 div 2;
@@ -233,10 +255,12 @@ begin
   if x1>x2 then begin
       z1:=x2;  x2:=x1;  x1:=z1;
       z1:=y2;  y2:=y1;  y1:=z1;
+
+      z1:=id_deb; id_deb:=id_fin; id_fin:=z1;
   end;
 
-
-  schema.add_link(id_deb,id_fin);
+  self.memo2.lines.Add(a+' '+b);
+  if mode then schema.add_link(id_deb,id_fin);
 
   //memo2.Clear;
   //memo2.Lines:=schema.show_entries;
@@ -350,22 +374,8 @@ for i:=1 to 26 do begin
 
 
 end;
-self.box_check.Height:=self.box_check.Controls[0].Height;
-self.box_check2.Height:=self.box_check2.Controls[0].Height;
-self.box_check2.Hide;
 
-isSimulate:=false;
-//memo3.lines.Clear;
-//memo3.lines.add('Circuit elec.');
-schema:=Tschema.create;
-dico:=TableauAssociatif.Create;
-dir:=ExtractFilePath(Application.ExeName);
-//self.Memo3.Lines.LoadFromFile(dir+'circuits\simple.cir');
-
-dir:=ExtractFilePath(Application.ExeName);
-
-//memo2.clear;
-  Bmp := TBitmap.Create;
+Bmp := TBitmap.Create;
   try
     for i:=1 to imagelist1.Count do begin
       bmp.Transparent:=true;
@@ -382,6 +392,16 @@ dir:=ExtractFilePath(Application.ExeName);
     Bmp.Free;
   end;
 
+self.box_check.Height:=self.box_check.Controls[0].Height;
+self.box_check2.Height:=self.box_check2.Controls[0].Height;
+self.box_check2.Hide;
+
+isSimulate:=false;
+schema:=Tschema.create;
+dico:=TableauAssociatif.Create;
+dir:=ExtractFilePath(Application.ExeName);
+//self.Memo3.Lines.LoadFromFile(dir+'circuits\simple.cir');
+//memo2.clear;
 
 end;
 
@@ -430,16 +450,17 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
            begin
              if not schema.alim then begin
                 form1.Canvas.Draw(X,Y,bmp);
+
              end;
            end
         else
         begin
         if (choix=2) then bmp.Canvas.TextOut(0,0,'/'+letter);
         if (choix=3) then bmp.Canvas.TextOut(0,0,letter);
-
         if (choix>1) and (choix<4) then ;
         form1.Canvas.Draw(X,Y,bmp);
         end;
+
         schema.add_entry(X,Y,choix,letter);
         memo2.Lines := schema.show_entries;
         exit;
@@ -486,7 +507,7 @@ begin
   if deb=fin then exit;
   if fin='-' then exit;
 
-  self.relie(deb,fin);
+  self.relie(deb,fin,true);
   deb:='-';
   fin:='-'
 end;
@@ -528,20 +549,76 @@ secondes:=0;
 shellexecute(Handle,'Open',pAnsiChar(dir +'Opus\opus.exe'),pansichar(' -b -r temp.raw temp.cir'),pansichar(dir+'\circuits'),SW_HIDE);
 s:= dir+'circuits\temp.raw';
 while not fileexists(s) do;
-//memo1.lines.Add('Analyse des résultats ...');
 raw_readtxt(s,dir,dico);
 timer1.Enabled:=false;
-//memo1.lines.Add('Analyse terminée en '+floattostr(secondes)+'  sec.');
 analyse;
 spicing:=false;
 
 
+end;
+
+procedure TForm1.Enregistrer1Click(Sender: TObject);
+begin
+self.SaveDialog1.FileName:='*.bin';
+self.SaveDialog1.InitialDir:=dir+'circuits\';
+if self.SaveDialog1.Execute then schema.savetofile(self.SaveDialog1.FileName);
+end;
+
+procedure TForm1.Nouveau1Click(Sender: TObject);
+begin
+self.reset;
+end;
+
+procedure TForm1.Ouvrir1Click(Sender: TObject);
+var p:pentry;
+    p2:plink;
+    i:integer;
+begin
+opendialog1.InitialDir:=dir+'circuits\';
+self.openDialog1.FileName:='*.bin';
+if self.OpenDialog1.Execute then begin
+   self.reset;
+   schema.loadfromfile(self.OpenDialog1.FileName);
+
+for i:=0 to schema.l.Count-1 do begin
+  p := schema.l[i];
+  self.load_bmp(p);
+end;
+for i:=0 to schema.cx.Count-1 do begin
+  p2 := schema.cx[i];
+  self.relie(inttostr(p2^.de),inttostr(p2^.a),false);
+end;
+
+memo2.Lines:=schema.show_entries;
+end;
+
+end;
+
+procedure Tform1.reset;
+var bmp:Tbitmap;
+begin
+self.box_check2.Visible:=false;
+self.box_check.Visible:=true;
+schema.destroy;
+
+dico.Free;
+schema:=Tschema.create;
+dico:=TableauAssociatif.Create;
+isSimulate:=false;
+isBinding:=false;
+isPlacing:=false;
+spicing:=false;
+memo2.Clear;
+//effacer l'ecran
 
 
-
-
-//memo1.Clear;
-//memo1.lines.add('Processus lancé');
+   bmp:=Tbitmap.create;
+   bmp.Width:=self.Width;
+   bmp.Height:=self.Height;
+   bmp.Canvas.Brush.Color:=self.Color;
+   bmp.Canvas.FillRect(Rect(0,0,self.Width,self.height));
+   form1.Canvas.Draw(0,0,bmp);
+   bmp.free;
 end;
 
 end.

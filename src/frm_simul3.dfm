@@ -114,6 +114,18 @@ object Form1: TForm1
     Top = 48
     object Fichier1: TMenuItem
       Caption = '&Fichier'
+      object Nouveau1: TMenuItem
+        Caption = 'No&uveau'
+        OnClick = Nouveau1Click
+      end
+      object Ouvrir1: TMenuItem
+        Caption = '&Ouvrir'
+        OnClick = Ouvrir1Click
+      end
+      object Enregistrer1: TMenuItem
+        Caption = 'E&nregistrer'
+        OnClick = Enregistrer1Click
+      end
       object Quitter1: TMenuItem
         Caption = '&Quitter'
         OnClick = Quitter1Click
@@ -1838,5 +1850,17 @@ object Form1: TForm1
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000FFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFF0000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000
       000000000000000000000000000000000000}
+  end
+  object OpenDialog1: TOpenDialog
+    FileName = '*.bin'
+    Filter = '*.bin'
+    Left = 736
+    Top = 120
+  end
+  object SaveDialog1: TSaveDialog
+    FileName = '*.bin'
+    Filter = '*.bin'
+    Left = 768
+    Top = 120
   end
 end

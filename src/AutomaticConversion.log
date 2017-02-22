@@ -1,0 +1,17 @@
+Hint: * Conversion du fichier D:\mrt\techno\progs\Delphi-Lazarus\spice\simul.dpr *
+Hint: Définitions -dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL ajoutées dans les options personnalisées
+Hint: Tous les fichiers d'unités ont été trouvés
+Hint: * Ajustement des unités utilisées pour le fichier D:\mrt\techno\progs\Delphi-Lazarus\spice\simul.dpr *
+Hint: 
+Hint: *** Conversion des fichiers unités appartenant au projet/paquet **
+Hint: * Conversion du fichier D:\mrt\techno\progs\Delphi-Lazarus\spice\frm_simul.pas *
+Hint: Codage modifié de cp1252 en "UTF-8"
+Hint: Paquet JvCoreLazR ajouté en tant que dépendance.
+Hint: Paquet SynEdit ajouté en tant que dépendance.
+Hint: Paquet python4lazarus_pkg ajouté en tant que dépendance.
+Hint: 
+Hint: *** Conversion des fichiers unités trouvés lors de la conversion ***
+Hint: * Conversion du fichier D:\components\JCL-jvcl\JCL\source\JclStrings.pas *
+Hint: * Conversion du fichier D:\components\JCL-jvcl\JCL\source\JclSysInfo.pas *
+Hint: La conversion a pris : 00:01:53
+Hint: Conversion abandonnée.

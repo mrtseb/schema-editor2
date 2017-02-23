@@ -432,13 +432,13 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
      X := (X div 50) * 50;
      Y := (Y div 50) * 50;
 
-    //if isSimulate then begin
+    if isSimulate then begin
     //    if spicing then exit;
     //    s:=schema.trouve_composant_node(X,Y);
     //    if s='-' then exit;
     //    gere_sim(s);
-    //    exit;
-    //end;
+        exit;
+    end;
 
     if isPlacing then begin
         //if (choix<>7) then if (X < 100) then exit;
@@ -510,6 +510,7 @@ procedure TForm1.Stopper1Click(Sender: TObject);
 var i:integer;
     p:pentry;
 begin
+self.Fichier1.Enabled:=true;
 isSimulate:=false;
 timer1.Enabled:=false;
 self.box_check2.Visible:=false;
@@ -530,6 +531,7 @@ var s, ss:string;
     t:Tstringlist;
 
 begin
+self.Fichier1.Enabled:=false;
 self.box_check2.Visible:=true;
 self.box_check.Hide;
 spicing:=true;

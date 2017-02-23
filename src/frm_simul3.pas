@@ -37,7 +37,6 @@ type
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     SpeedButton6: TSpeedButton;
-    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -54,7 +53,6 @@ type
     procedure Enregistrer1Click(Sender: TObject);
     procedure Nouveau1Click(Sender: TObject);
     procedure Ouvrir1Click(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
      private
     { Déclarations privées }
 
@@ -119,10 +117,14 @@ begin
    bmp.loadfromFile(extractfilepath(Application.exename)+'img\'+p^.device+'.bmp');
    bmp.Transparent :=true;
    bmp.TransparentColor:=clFuchsia;
-   bmp.canvas.pen.Color:=clblack;
-   bmp.canvas.Font.Size:=6;
-   bmp.Canvas.brush.Color:=self.color;
-   bmp.Canvas.TextOut(0,0,p^.letter);
+   self.canvas.Font.Name:='Arial';
+   self.canvas.font.Color:=clblack;
+   self.canvas.Font.Size:=8;
+   self.canvas.Font.Style:=[fsBold];
+   self.Canvas.brush.Color:=self.color;
+   self.Canvas.Brush.Style:=bsclear;
+   self.Canvas.Pen.Mode:=pmCopy;
+   if pos('LMP',p^.device)>0 then self.Canvas.TextOut(p^.X+10,p^.Y-10,p^.letter) else  self.Canvas.TextOut(p^.X+10,p^.Y-4,p^.letter);
 
    bmp.Canvas.Pen.Color:=clFuchsia;
 
@@ -133,7 +135,7 @@ end;
 
 Procedure Tform1.gere_sim(s:string;val:integer);
 var p:pentry;
-    t:char;
+    c:char;
 
 begin
 
@@ -141,17 +143,14 @@ begin
         if p^.device ='P' then exit;
         if p^.device ='N' then exit;
 
-        //a ne faire que pour les in binaires
+
         if (pos('NF', p^.device ) > 0) or (pos('NO', p^.device) >0) then if p^.device[3]='0' then p^.device[3]:='1' else p^.device[3]:='0';
 
-
-        if val>5 then t:='1' else t:='0';
-        if (pos('KF', p^.device ) > 0) then p^.device :='KF'+t;
-        if (pos('KO', p^.device ) > 0) then p^.device :='KO'+t;
-
-        memo2.Lines:=schema.show_entries;
+        if val>5 then c:='1' else c:='0';
+        if (pos('KF', p^.device ) > 0) or (pos('KO', p^.device) >0) then if p^.device[3]='0' then p^.device[3]:='1' else p^.device[3]:='0';
 
         self.load_bmp(p);
+        memo2.Lines:=schema.show_entries;
 
 end;
 
@@ -180,7 +179,7 @@ end;
 procedure Tform1.set_letter(Sender: TObject);
 begin
  letter:=(sender as tradiobutton).Caption;
- self.caption:=letter;
+ //self.caption:=letter;
 end;
 procedure Tform1.analyse;
 var i,j:integer;
@@ -207,16 +206,19 @@ for i:=0 to self.schema.l.Count-1 do begin
 
       change2 :=(v1-v2<1) and(pp^.device[4]='1');
       if change2 then pp^.device[4]:='0';
-
       if change1 or change2 then begin
-        self.load_bmp(pp);
-        do_simul(pp^.letter, round(v1-v2));
-        
-      end;
+      self.load_bmp(pp);
 
-      memo2.Lines:=schema.show_entries;
+      //memo2.Lines.Add(pp^.letter);
+      if pos('REL',pp^.device) > 0 then
+        begin
+
+          memo2.lines.add(pp^.letter+ inttostr(round(v1-v2)));
+          do_simul(pp^.letter, round(v1-v2));
+        end;
+
       continue;
-
+      end;
 
 
 
@@ -259,8 +261,9 @@ begin
       z1:=id_deb; id_deb:=id_fin; id_fin:=z1;
   end;
 
-  self.memo2.lines.Add(a+' '+b);
+
   if mode then schema.add_link(id_deb,id_fin);
+  self.memo2.lines:=schema.show_entries;
 
   //memo2.Clear;
   //memo2.Lines:=schema.show_entries;
@@ -369,7 +372,7 @@ for i:=1 to 10 do begin
   ck2.Caption:=chr(64+i);
   ck2.Tag := i;
   ck2.Width:=27;
-  ck2.left:=250+(i-1)*30;
+  ck2.left:=(i-1)*30;
   ck2.OnClick:=simul_letter;
 
 
@@ -440,48 +443,9 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
     if isPlacing then begin
         //if (choix<>7) then if (X < 100) then exit;
         if schema.dejala(X,Y)then exit;
-        ImageList1.GetBitmap(choix, Bmp);
-        bmp.Transparent:=true;
-        bmp.TransparentColor:=clFuchsia;
-        bmp.Canvas.Brush.color:=clFuchsia;
-        bmp.Canvas.pen.color:=clFuchsia;
-        bmp.Canvas.Rectangle(0,0,33,33);
-        ImageList1.GetBitmap(choix, Bmp);
-        if choix=0 then
-           begin
-             if not schema.alim then begin
-                form1.Canvas.Draw(X,Y,bmp);
-
-             end;
-           end
-        else
-        begin
-        if (choix=2) then bmp.Canvas.TextOut(0,0,'/'+letter);
-        if (choix=3) then bmp.Canvas.TextOut(0,0,letter);
-        form1.Canvas.Draw(X,Y,bmp);
-        end;
-
         schema.add_entry(X,Y,choix,letter);
-
-        if choix>=4 then begin
-        p:=schema.l[schema.l.count-1];
+        p:=self.schema.l[self.schema.l.count-1];
         load_bmp(p);
-        end;
-        if choix>4 then begin
-          ck:=Tradiobutton.Create(self.box_check);
-          ck.Parent:=self.box_check;
-          ck.Caption:=p^.letter;
-          ck.onclick:=set_letter;
-          ck.left:=(self.box_check.ControlCount-1)*32;
-        end;
-
-        if (choix=2) or (choix=3) then begin
-        p:=schema.l[schema.l.count-1];
-        if p^.letter[1]='R' then begin p^.device:='KO0';  p^.choix:=7; end;
-        if pos('/R',p^.letter)>0 then begin p^.device:='KF0';   p^.choix:=6; end;
-        schema.l[schema.l.count-1]:=p;
-        end;
-
         memo2.Lines := schema.show_entries;
         exit;
   end;
@@ -502,7 +466,6 @@ procedure TForm1.SpeedButton1Click(Sender: TObject);
 begin
       isPlacing:=true;
       choix:=(sender as TspeedButton).tag;
-
 end;
 
 
@@ -545,12 +508,20 @@ end;
 
 procedure TForm1.Stopper1Click(Sender: TObject);
 var i:integer;
+    p:pentry;
 begin
 isSimulate:=false;
 timer1.Enabled:=false;
 self.box_check2.Visible:=false;
 self.box_check.Visible:=true;
-//for i:=0 to self.box_check2.ControlCount-1 do (self.box_check2.Controls[i] as Tcheckbox)
+for i:=0 to self.box_check2.ControlCount-1 do (self.box_check2.Controls[i] as Tcheckbox).Checked:=false;
+for i:= 0 to schema.l.Count-1 do begin
+   p:=schema.l[i];
+   if p^.device='LMP1' then  p^.device:='LMP0';
+   if p^.device='NO1' then  p^.device:='NO0';
+   if p^.device='NF1' then  p^.device:='NF0';
+   self.load_bmp(p);
+end;
 end;
 
 procedure TForm1.Simuler1Click(Sender: TObject);
@@ -563,8 +534,7 @@ self.box_check2.Visible:=true;
 self.box_check.Hide;
 spicing:=true;
 isSimulate:=true;
-//memo3.lines:=schema.gen_netlist;
-self.Button1Click(self);
+memo3.lines:=schema.gen_netlist;
 timer1.Enabled:=true;
 
 memo3.lines.SaveToFile(dir+'circuits\temp.cir');
@@ -620,7 +590,14 @@ end;
 
 procedure Tform1.reset;
 var bmp:Tbitmap;
+    i:integer;
 begin
+letter:='A';
+(self.box_check.Controls[0] as Tradiobutton).Checked:=true;
+for i:=10 to self.box_check.ControlCount-1 do  self.box_check.Controls[i].Destroy;
+for i:=0 to self.box_check2.ControlCount-1 do (self.box_check2.Controls[i] as Tcheckbox).Checked:=false;
+
+
 self.box_check2.Visible:=false;
 self.box_check.Visible:=true;
 schema.destroy;
@@ -643,33 +620,6 @@ memo2.Clear;
    bmp.Canvas.FillRect(Rect(0,0,self.Width,self.height));
    form1.Canvas.Draw(0,0,bmp);
    bmp.free;
-end;
-
-procedure TForm1.Button1Click(Sender: TObject);
-var i:integer;
-    p:pentry;
-    s:string;
-begin
-memo3.clear;
-
-memo3.lines.Add('MrT sim-spice');
-
-for i:=0 to schema.l.Count-1 do begin
-   p:=schema.l[i];
-   if p^.device = 'P' then s:='V1 1 0 10V';
-   if p^.device = 'N' then continue;
-   if ((pos('O0',p^.device) > 0) or (pos('F1',p^.device) >0)) then memo3.lines.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1e9');
-   if ((pos('O1',p^.device) > 0) or (pos('F0',p^.device) >0)) then memo3.lines.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1');
-   if (pos('LMP',p^.device)>0) or (pos('REL',p^.device)>0) then memo3.lines.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 500');
-
-
-
-end;
-if s<>'' then memo3.lines.add(s);
-memo3.lines.add('.op');
-
-
-
 end;
 
 end.

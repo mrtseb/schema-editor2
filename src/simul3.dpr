@@ -6,10 +6,10 @@ program simul3;
 
 uses
   Forms,
-  frm_simul3 in '..\..\..\spice\src\frm_simul3.pas' {Form1},
-  sim_utils in '..\..\..\spice\src\sim_utils.pas',
-  tabassoc in '..\..\..\spice\src\tabassoc.pas',
-  schema_utils in '..\..\..\spice\src\schema_utils.pas';
+  frm_simul3 in 'frm_simul3.pas' {Form1},
+  sim_utils in 'sim_utils.pas',
+  tabassoc in 'tabassoc.pas',
+  schema_utils in 'schema_utils.pas';
 
 {$R *.res}
 

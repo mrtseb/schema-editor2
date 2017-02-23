@@ -3,7 +3,7 @@ unit sim_utils;
 
 interface
 uses tabassoc, sysutils, classes,strutils;
-procedure raw_read(fn, dir: string);                                                                                               
+procedure raw_read(fn, dir: string);
 procedure raw_readtxt(fn, dir: string; dico:Tableauassociatif);
 
 

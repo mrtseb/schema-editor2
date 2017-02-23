@@ -71,6 +71,7 @@ object Form1: TForm1
       Top = 0
       Width = 40
       Height = 40
+      Visible = False
       OnClick = SpeedButton1Click
     end
   end
@@ -83,6 +84,7 @@ object Form1: TForm1
     Lines.Strings = (
       'Memo3')
     TabOrder = 1
+    Visible = False
   end
   object box_check: TPanel
     Left = 0
@@ -100,6 +102,7 @@ object Form1: TForm1
     Lines.Strings = (
       'memo2')
     TabOrder = 3
+    Visible = False
   end
   object box_check2: TPanel
     Left = 0
@@ -108,15 +111,6 @@ object Form1: TForm1
     Height = 24
     Align = alTop
     TabOrder = 4
-  end
-  object Button1: TButton
-    Left = 744
-    Top = 304
-    Width = 97
-    Height = 25
-    Caption = 'Button1'
-    TabOrder = 5
-    OnClick = Button1Click
   end
   object Timer1: TTimer
     Interval = 250

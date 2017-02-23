@@ -1,17 +1,29 @@
 Title: MrT sim-spice
-Date: Thu Feb 23 09:41:00  2017
+Date: Thu Feb 23 11:59:29  2017
 Plotname: Operating Point
 Flags: real
-No. Variables: 4
+No. Variables: 10
 No. Points: 1       
 Command: version 2.31 $Revision: 200 $
 Variables:
 	0	V(1)	voltage
-	1	V(3)	voltage
-	2	V(7)	voltage
-	3	v1#branch	current
+	1	V(7)	voltage
+	2	V(12)	voltage
+	3	V(16)	voltage
+	4	V(19)	voltage
+	5	V(26)	voltage
+	6	V(30)	voltage
+	7	V(32)	voltage
+	8	V(37)	voltage
+	9	v1#branch	current
 Values:
 0		1.000000000000000e+001
+	9.980039920159680e+000
 	4.999997500001251e-006
-	4.999997500001251e-006
-	-1.999999000000500e-008
+	5.000001249999687e+000
+	2.499999375000156e-006
+	9.999990000010002e-006
+	9.999999990000010e+000
+	1.000998997999918e-005
+	9.999989990009172e-006
+	-3.996013484027536e-002

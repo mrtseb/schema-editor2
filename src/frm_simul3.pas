@@ -35,7 +35,7 @@ type
     Nouveau1: TMenuItem;
     Ouvrir1: TMenuItem;
     OpenDialog1: TOpenDialog;
-    SaveDialog1: TSaveDialog;
+    SaveDialog1: TSaveDialog;                                                                                                               
     SpeedButton6: TSpeedButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -124,7 +124,7 @@ begin
    self.Canvas.brush.Color:=self.color;
    self.Canvas.Brush.Style:=bsclear;
    self.Canvas.Pen.Mode:=pmCopy;
-   if pos('LMP',p^.device)>0 then self.Canvas.TextOut(p^.X+10,p^.Y-10,p^.letter) else  self.Canvas.TextOut(p^.X+10,p^.Y-4,p^.letter);
+   if (pos('LMP',p^.device)>0) or (pos('REL',p^.device)>0) then self.Canvas.TextOut(p^.X+10,p^.Y-10,p^.letter) else  self.Canvas.TextOut(p^.X+10,p^.Y-4,p^.letter);
 
    bmp.Canvas.Pen.Color:=clFuchsia;
 
@@ -147,7 +147,8 @@ begin
         if (pos('NF', p^.device ) > 0) or (pos('NO', p^.device) >0) then if p^.device[3]='0' then p^.device[3]:='1' else p^.device[3]:='0';
 
         if val>5 then c:='1' else c:='0';
-        if (pos('KF', p^.device ) > 0) or (pos('KO', p^.device) >0) then if p^.device[3]='0' then p^.device[3]:='1' else p^.device[3]:='0';
+        if (pos('KF', p^.device ) > 0) or (pos('KO', p^.device) >0) then p^.device[3]:=c;
+
 
         self.load_bmp(p);
         memo2.Lines:=schema.show_entries;
@@ -421,6 +422,7 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
    var
    Bmp: TBitmap;
    e:Tentry;
+   c:char;
    p:pEntry;
    s:string;
    ck:Tradiobutton;
@@ -434,9 +436,14 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
 
     if isSimulate then begin
     //    if spicing then exit;
-    //    s:=schema.trouve_composant_node(X,Y);
-    //    if s='-' then exit;
-    //    gere_sim(s);
+        //s:=schema.trouve_composant_node(X,Y);
+        //if s='-' then exit;
+        //p:=schema.l[strtoint(s)];
+        //self.caption:=p^.device;
+        //c:=p^.device[3];
+        //if c='0' then c:='1' else c:='0';
+        //gere_sim(s,strtoint(c)*10);
+        //self.Simuler1Click(self);
         exit;
     end;
 
@@ -447,6 +454,13 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
         p:=self.schema.l[self.schema.l.count-1];
         load_bmp(p);
         memo2.Lines := schema.show_entries;
+        if choix=5 then begin
+          ck:=Tradiobutton.create(self.box_check);
+          ck.parent:=self.box_check;
+          ck.Caption:= p^.letter;
+          ck.OnClick:=set_letter;
+          ck.Left:=30*(self.box_check.ComponentCount);
+        end;
         exit;
   end;
   //binding
@@ -466,6 +480,7 @@ procedure TForm1.SpeedButton1Click(Sender: TObject);
 begin
       isPlacing:=true;
       choix:=(sender as TspeedButton).tag;
+
 end;
 
 
@@ -513,16 +528,20 @@ begin
 self.Fichier1.Enabled:=true;
 isSimulate:=false;
 timer1.Enabled:=false;
-self.box_check2.Visible:=false;
-self.box_check.Visible:=true;
+
 for i:=0 to self.box_check2.ControlCount-1 do (self.box_check2.Controls[i] as Tcheckbox).Checked:=false;
 for i:= 0 to schema.l.Count-1 do begin
    p:=schema.l[i];
    if p^.device='LMP1' then  p^.device:='LMP0';
+   if p^.device='REL1' then  p^.device:='REL0';
    if p^.device='NO1' then  p^.device:='NO0';
    if p^.device='NF1' then  p^.device:='NF0';
+   if p^.device='KO1' then  p^.device:='KO0';
+   if p^.device='KF1' then  p^.device:='KF0';
    self.load_bmp(p);
 end;
+self.box_check2.Visible:=false;
+self.box_check.Visible:=true;
 end;
 
 procedure TForm1.Simuler1Click(Sender: TObject);

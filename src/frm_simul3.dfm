@@ -71,7 +71,6 @@ object Form1: TForm1
       Top = 0
       Width = 40
       Height = 40
-      Visible = False
       OnClick = SpeedButton1Click
     end
   end

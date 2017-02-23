@@ -59,13 +59,16 @@ type
 PEntry = ^TEntry;
 
 const
-   Devices : array[0..4] of TDevice =
+   Devices : array[0..7] of TDevice =
    (
      (Name : 'P'; broches : 1),
      (Name : 'N'; broches : 1),
      (Name : 'NF0'; broches : 2),
      (Name : 'NO0'; broches : 2),
-     (Name : 'LMP0'; broches : 2)
+     (Name : 'LMP0'; broches : 2),
+     (Name : 'REL0'; broches : 2),
+     (Name : 'KF0'; broches : 2),
+     (Name : 'KO0'; broches : 2)
 
    ) ;
 
@@ -185,7 +188,10 @@ for i:=0 to self.l.Count-1 do begin
    if p^.device = 'N' then continue;
    if (p^.device = 'NO0') or (p^.device = 'NF1') then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1e9');
    if (p^.device = 'NF0') or (p^.device = 'NO1') then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1');
+   if (p^.device = 'KO0') or (p^.device = 'KF1') then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1e9');
+   if (p^.device = 'KF0') or (p^.device = 'KO1') then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 1');
    if (pos('LMP',p^.device)>0) then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 500');
+   if (pos('REL',p^.device)>0) then result.Add('R'+inttostr(p^.num)+' '+inttostr(p^.pin1)+' '+inttostr(p^.pin2)+' 500');
 
 
 
@@ -242,7 +248,7 @@ begin
     //derivation
     if deb.X = fin.X then
     begin
-      if fin.device='LMP0' then
+      if (fin.device='LMP0') or (fin.device='REL0') then
       deb.pin2:=fin.pin1;
       p:=l[de];
       p^:=deb;
@@ -251,7 +257,7 @@ begin
     else
     begin
     //serie
-    if fin.device='LMP0' then begin
+    if (fin.device='LMP0') or (fin.device='REL0') then begin
       deb.pin2:=fin.pin1;
       p:=l[de];
       p^:=deb;
@@ -324,13 +330,23 @@ begin
    if not alim then if choix=0 then alim:=true;
 
    e.num:=l.Count;
-   e.device:=devices[choix].Name;
+
 
    if choix=0 then e.letter:='P';
    if choix=1 then e.letter:='N';
+
+   if (choix=2) or (choix=3) then begin
    if choix=2 then e.letter:='/'+letter;
    if choix=3 then e.letter:=letter;
+   if pos('R',letter)>0 then choix:=choix+4;
+   end;
+
+   e.device:=devices[choix].Name;
+
    if choix=4 then e.letter:= e.device[1]+inttostr(e.num);
+   if choix=5 then e.letter:= e.device[1]+inttostr(e.num);
+
+
 
    e.choix:=choix;
    e.X:=X;

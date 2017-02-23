@@ -13,6 +13,7 @@ object Form1: TForm1
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poDesktopCenter
+  WindowState = wsMaximized
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnMouseDown = FormMouseDown
@@ -22,7 +23,7 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1076
+    Width = 1597
     Height = 41
     Align = alTop
     TabOrder = 0
@@ -73,40 +74,58 @@ object Form1: TForm1
       Height = 40
       OnClick = SpeedButton1Click
     end
+    object placer: TRadioButton
+      Left = 256
+      Top = 3
+      Width = 137
+      Height = 20
+      Caption = 'Placer les composants'
+      Checked = True
+      TabOrder = 0
+      TabStop = True
+      OnClick = placerClick
+    end
+    object RadioButton1: TRadioButton
+      Left = 256
+      Top = 20
+      Width = 137
+      Height = 20
+      Caption = 'Relier les composants'
+      TabOrder = 1
+      OnClick = RadioButton1Click
+    end
   end
   object Memo3: TMemo
-    Left = 920
+    Left = 1441
     Top = 89
     Width = 156
-    Height = 548
+    Height = 712
     Align = alRight
     Lines.Strings = (
       'Memo3')
     TabOrder = 1
-    Visible = False
   end
   object box_check: TPanel
     Left = 0
     Top = 41
-    Width = 1076
+    Width = 1597
     Height = 24
     Align = alTop
     TabOrder = 2
   end
   object memo2: TMemo
-    Left = 728
-    Top = 408
+    Left = 1256
+    Top = 608
     Width = 185
     Height = 193
     Lines.Strings = (
       'memo2')
     TabOrder = 3
-    Visible = False
   end
   object box_check2: TPanel
     Left = 0
     Top = 65
-    Width = 1076
+    Width = 1597
     Height = 24
     Align = alTop
     TabOrder = 4

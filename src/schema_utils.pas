@@ -245,16 +245,7 @@ begin
       exit;
     end;
 
-    //derivation
-    if deb.X = fin.X then
-    begin
-      if (fin.device='LMP0') or (fin.device='REL0') then
-      deb.pin2:=fin.pin1;
-      p:=l[de];
-      p^:=deb;
-    end
 
-    else
     begin
     //serie
     if (fin.device='LMP0') or (fin.device='REL0') then begin

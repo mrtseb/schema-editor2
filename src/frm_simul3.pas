@@ -37,6 +37,8 @@ type
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;                                                                                                               
     SpeedButton6: TSpeedButton;
+    placer: TRadioButton;
+    RadioButton1: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -53,6 +55,8 @@ type
     procedure Enregistrer1Click(Sender: TObject);
     procedure Nouveau1Click(Sender: TObject);
     procedure Ouvrir1Click(Sender: TObject);
+    procedure placerClick(Sender: TObject);
+    procedure RadioButton1Click(Sender: TObject);
      private
     { Déclarations privées }
 
@@ -259,15 +263,15 @@ begin
       z1:=x2;  x2:=x1;  x1:=z1;
       z1:=y2;  y2:=y1;  y1:=z1;
 
-      z1:=id_deb; id_deb:=id_fin; id_fin:=z1;
+      //z1:=id_deb; id_deb:=id_fin; id_fin:=z1;
   end;
 
 
-  if mode then schema.add_link(id_deb,id_fin);
+  if (mode=true) then schema.add_link(id_deb,id_fin);
   self.memo2.lines:=schema.show_entries;
+  self.memo2.lines.add(inttostr(id_deb)+inttostr(id_fin));
 
-  //memo2.Clear;
-  //memo2.Lines:=schema.show_entries;
+  memo2.Lines:=schema.show_entries;
 
   form1.canvas.moveto(x1+33,y1);
   form1.canvas.Pen.Color:=clBlack;
@@ -435,16 +439,7 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
      Y := (Y div 50) * 50;
 
     if isSimulate then begin
-    //    if spicing then exit;
-        //s:=schema.trouve_composant_node(X,Y);
-        //if s='-' then exit;
-        //p:=schema.l[strtoint(s)];
-        //self.caption:=p^.device;
-        //c:=p^.device[3];
-        //if c='0' then c:='1' else c:='0';
-        //gere_sim(s,strtoint(c)*10);
-        //self.Simuler1Click(self);
-        exit;
+         exit;
     end;
 
     if isPlacing then begin
@@ -464,12 +459,11 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
         exit;
   end;
   //binding
-  self.isBinding:=true;
-  deb:=schema.trouve_composant_node(X,Y);
+  if isBinding then deb:=schema.trouve_composant_node(X,Y);
 
   finally begin
     bmp.free;
-    isPlacing:=false;
+
   end;
     end;
   end;
@@ -496,8 +490,7 @@ begin
        exit;
     end;
 
-  if isplacing then else isBinding:=false;
-
+  if isBinding then begin
 
   if deb='-' then exit;
   if deb='' then exit;
@@ -509,6 +502,7 @@ begin
   self.relie(deb,fin,true);
   deb:='-';
   fin:='-'
+  end;
 end;
 
 procedure TForm1.Quitter1Click(Sender: TObject);
@@ -613,6 +607,8 @@ procedure Tform1.reset;
 var bmp:Tbitmap;
     i:integer;
 begin
+self.placer.Checked:=true;
+self.placerClick(self);
 letter:='A';
 (self.box_check.Controls[0] as Tradiobutton).Checked:=true;
 for i:=10 to self.box_check.ControlCount-1 do  self.box_check.Controls[i].Destroy;
@@ -641,6 +637,18 @@ memo2.Clear;
    bmp.Canvas.FillRect(Rect(0,0,self.Width,self.height));
    form1.Canvas.Draw(0,0,bmp);
    bmp.free;
+end;
+
+procedure TForm1.placerClick(Sender: TObject);
+begin
+isPlacing:=true;
+isBinding:=false;
+end;
+
+procedure TForm1.RadioButton1Click(Sender: TObject);
+begin
+isPlacing:=false;
+isBinding:=true;
 end;
 
 end.

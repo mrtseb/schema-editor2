@@ -39,6 +39,7 @@ type
     SpeedButton6: TSpeedButton;
     placer: TRadioButton;
     RadioButton1: TRadioButton;
+    Memo1: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormMouseDown(Sender: TObject; Button: TMouseButton;
@@ -93,15 +94,8 @@ var
 implementation
 uses
   JclSysInfo, JclStrings, JvDSADialogs;
-{$IFnDEF FPC}
-  {$IFnDEF FPC}
+
   {$R *.dfm}
-{$ELSE}
-  {$R *.lfm}
-{$ENDIF}
-{$ELSE}
-  {$R *.lfm}
-{$ENDIF}
 
 procedure Tform1.redraw;
 begin
@@ -268,10 +262,12 @@ begin
 
 
   if (mode=true) then schema.add_link(id_deb,id_fin);
+
   self.memo2.lines:=schema.show_entries;
   self.memo2.lines.add(inttostr(id_deb)+inttostr(id_fin));
 
   memo2.Lines:=schema.show_entries;
+  memo1.Lines:=schema.show_cx;
 
   form1.canvas.moveto(x1+33,y1);
   form1.canvas.Pen.Color:=clBlack;
@@ -353,7 +349,11 @@ var i:integer;
     bmp:Tbitmap;
     ck:Tradiobutton;
     ck2:Tcheckbox;
+
+
 begin
+self.placer.Checked:=true;
+self.placerClick(self);
 
 for i:=1 to 10 do begin
   ck:= Tradiobutton.Create(self.box_check);
@@ -433,6 +433,7 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
 
    begin
   try
+    if choix=-1 then exit;
     Bmp:=Tbitmap.create;
 
      X := (X div 50) * 50;
@@ -472,7 +473,7 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
 procedure TForm1.SpeedButton1Click(Sender: TObject);
 
 begin
-      isPlacing:=true;
+
       choix:=(sender as TspeedButton).tag;
 
 end;
@@ -519,6 +520,9 @@ procedure TForm1.Stopper1Click(Sender: TObject);
 var i:integer;
     p:pentry;
 begin
+self.placer.Checked:=true;
+self.placerClick(self);
+choix:=-1;
 self.Fichier1.Enabled:=true;
 isSimulate:=false;
 timer1.Enabled:=false;
@@ -580,9 +584,11 @@ end;
 
 procedure TForm1.Ouvrir1Click(Sender: TObject);
 var p:pentry;
-    p2:plink;
+    s,p2:string;
     i:integer;
+    t:Tstringlist;
 begin
+t:=Tstringlist.create;
 opendialog1.InitialDir:=dir+'circuits\';
 self.openDialog1.FileName:='*.bin';
 if self.OpenDialog1.Execute then begin
@@ -594,13 +600,14 @@ for i:=0 to schema.l.Count-1 do begin
   self.load_bmp(p);
 end;
 for i:=0 to schema.cx.Count-1 do begin
-  p2 := schema.cx[i];
-  self.relie(inttostr(p2^.de),inttostr(p2^.a),false);
+    p2 := schema.cx[i];
+    split(':',p2,t);
+  self.relie(t[0] ,t[1],false);
 end;
 
 memo2.Lines:=schema.show_entries;
 end;
-
+t.free;
 end;
 
 procedure Tform1.reset;
@@ -614,10 +621,9 @@ letter:='A';
 for i:=10 to self.box_check.ControlCount-1 do  self.box_check.Controls[i].Destroy;
 for i:=0 to self.box_check2.ControlCount-1 do (self.box_check2.Controls[i] as Tcheckbox).Checked:=false;
 
-
 self.box_check2.Visible:=false;
 self.box_check.Visible:=true;
-schema.destroy;
+schema.free;
 
 dico.Free;
 schema:=Tschema.create;
@@ -627,6 +633,7 @@ isBinding:=false;
 isPlacing:=false;
 spicing:=false;
 memo2.Clear;
+memo1.clear;
 //effacer l'ecran
 
 

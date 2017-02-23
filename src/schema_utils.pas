@@ -10,6 +10,7 @@ type
      a: integer;
   end;
   Plink =^Tlink;
+
   TDevice = record
      Name : string;
      broches : integer;
@@ -33,7 +34,7 @@ type
 
   Tschema = class(Tobject)
        l:Tlist;
-       cx:Tlist;
+       cx:Tstringlist;
        public
        alim:boolean;
        nb_noeuds:integer;
@@ -44,9 +45,10 @@ type
        function trouve_composant_node(X,Y:integer):string;
        function trouve_composant_node2(X,Y:integer):integer;
        function show_entries:TstringList;
+       function show_cx:TstringList;
        function show_entry(e:Tentry; s:TMemo):TstringList;
        function dejala(X,Y:integer):boolean;
-       function dejala2(X,Y:integer):boolean;
+       function dejala2(de,a:integer):boolean;
        function trouve_by_id(id:integer):Tentry;
        procedure add_link(de,a:integer);
        function donne_cx(num:integer):string;
@@ -123,12 +125,9 @@ begin
      readln(f,m);
 
      for i:=0 to m-1 do begin
-       new(p2);
        readln(f,de);
-       p2^.de:=de;
        readln(f,a);
-       p2^.a:=a;
-       cx.Add(p2);
+       cx.add(inttostr(de)+':'+inttostr(a));
      end;
 
 
@@ -144,7 +143,7 @@ procedure Tschema.savetofile(fn: string);
 
 var i,n,m :integer;
     p:pEntry;
-    p2:plink;
+    p2:string;
     t:tentry;
     f:textfile;
 
@@ -164,8 +163,7 @@ begin
      writeln(f,n);
      for i:=0 to n-1 do begin
         p2:=cx[i];
-        writeln(f,p2^.de);
-        writeln(f,p2^.a);
+        writeln(f,p2);
      end;
 
 
@@ -203,7 +201,7 @@ end;
 constructor Tschema.create;
 begin
   l:=Tlist.create;
-  cx:=Tlist.create;
+  cx:=Tstringlist.create;
 end;
 
 destructor Tschema.destroy;
@@ -218,18 +216,16 @@ procedure Tschema.add_link(de,a:integer);
 var
     deb,fin,temp:tentry;
     p:pentry;
-    p2:plink;
+    p2:string;
 begin
+
+    if cx.IndexOf(inttostr(de)+':'+inttostr(a)) >= 0 then exit;
+    if cx.IndexOf(inttostr(a)+':'+inttostr(de)) >= 0 then exit;
+
+    cx.add(inttostr(de)+':'+inttostr(a));
 
     deb:=trouve_by_id(de);
     fin:=trouve_by_id(a);
-
-    if not self.dejala2(de,a)  then begin
-    new(p2);
-    p2^.de:=de;
-    p2^.a:=a;
-    cx.Add(p2);
-    end;
 
     if deb.device='P' then begin
       fin.pin1:=deb.pin1;
@@ -261,6 +257,22 @@ begin
 
 end;
 
+function Tschema.show_cx:TstringList;
+var p : string;
+    i:integer;
+    t:Tstringlist;
+begin
+   t:=TStringlist.create;
+   result:=TstringList.create;
+   for i:=0 to cx.Count-1 do begin
+      p:=cx[i];
+      Split(':',p,t);
+      result.Add(t[0]+':'+t[1]+'-'+inttostr(cx.count));
+   end;
+   t.free;
+
+end;
+
 function Tschema.show_entries:TstringList;
 var p : Pentry;
     i:integer;
@@ -270,7 +282,7 @@ begin
    result:=TstringList.create;
    for i:=0 to l.Count-1 do begin
       p:=l[i];
-      result.Add(inttostr(p^.X)+':'+inttostr(p^.Y)+':'+p^.device);
+      result.Add(inttostr(p^.X)+':'+inttostr(p^.Y)+':'+p^.device+':'+inttostr(p^.pin1)+':'+inttostr(p^.pin2));
    end;
 
 end;
@@ -293,22 +305,23 @@ begin
 end;
 
 
-function Tschema.dejala2(X,Y:integer):boolean;
-var res:boolean;
-    p : Plink;
+function Tschema.dejala2(de,a:integer):boolean;
+var
+    p :Plink;
+    t: Tlink;
     i:integer;
 begin
- res:=false;
- for i:=0 to self.cx.count-1 do begin
-      new(p);
-      p:=l.Items[i];
-      if (p^.de =X) and (p^.a =Y) or (p^.a =X) and (p^.de =Y)then
-      begin
-          res:=true;
-          break;
+ result:=false;
+ for i:=0 to cx.count-1 do begin
+      p:=l[i];
+      t:=p^;
+      if (t.de=de) and (t.a =a) or (t.de =a) and (t.a =de) then begin
+         result:=true;
+         exit;
       end;
+
  end;
- result:=res;
+
 end;
 
 

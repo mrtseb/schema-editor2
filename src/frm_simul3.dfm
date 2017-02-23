@@ -23,7 +23,7 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1597
+    Width = 1076
     Height = 41
     Align = alTop
     TabOrder = 0
@@ -96,39 +96,53 @@ object Form1: TForm1
     end
   end
   object Memo3: TMemo
-    Left = 1441
+    Left = 920
     Top = 89
     Width = 156
-    Height = 712
+    Height = 548
     Align = alRight
     Lines.Strings = (
       'Memo3')
     TabOrder = 1
+    Visible = False
   end
   object box_check: TPanel
     Left = 0
     Top = 41
-    Width = 1597
+    Width = 1076
     Height = 24
     Align = alTop
     TabOrder = 2
   end
   object memo2: TMemo
-    Left = 1256
-    Top = 608
-    Width = 185
-    Height = 193
+    Left = 534
+    Top = 89
+    Width = 193
+    Height = 548
+    Align = alRight
     Lines.Strings = (
       'memo2')
     TabOrder = 3
+    Visible = False
   end
   object box_check2: TPanel
     Left = 0
     Top = 65
-    Width = 1597
+    Width = 1076
     Height = 24
     Align = alTop
     TabOrder = 4
+  end
+  object Memo1: TMemo
+    Left = 727
+    Top = 89
+    Width = 193
+    Height = 548
+    Align = alRight
+    Lines.Strings = (
+      'memo2')
+    TabOrder = 5
+    Visible = False
   end
   object Timer1: TTimer
     Interval = 250

@@ -1,7 +1,5 @@
 unit tabassoc;
 
-{$MODE Delphi}
-
 interface
 
 uses
@@ -41,23 +39,23 @@ procedure TableauAssociatif.AjoutElement(Cle, Valeur: string);
 var
   Elem: PElementTableauAssociatif;
 begin
-  // recherche d'une entrÃ©e comportant la clÃ© transmise
+  // recherche d'une entrée comportant la clé transmise
   Elem := rechercheElem(Cle);
-  // si l'entrÃ©e existe
+  // si l'entrée existe
   if Elem <> nil then
-    { mise Ã  jour de la valeur (l'entrÃ©e sera toujours rÃ©fÃ©rencÃ©e dans la liste,
-      il n'y a donc rien de plus Ã  faire au niveau du pointeur puisque ce n'est
-      pas lui qui change mais une des valeurs pointÃ©es. }
+    { mise à jour de la valeur (l'entrée sera toujours référencée dans la liste,
+      il n'y a donc rien de plus à faire au niveau du pointeur puisque ce n'est
+      pas lui qui change mais une des valeurs pointées. }
     Elem^.Valeur := Valeur
   else
     begin
-      { CrÃ©ation d'un nouvel Ã©lÃ©ment }
+      { Création d'un nouvel élément }
       new(Elem);
       Elem^.Cle := Cle;
       Elem^.Valeur := Valeur;
-      { ajout d'une entrÃ©e dans la liste des pointeurs. Notez le transtypage implicite
-        de Elem en type Pointer. Notez Ã©galement qu'on ne DOIT PAS appeler Dispose
-        sur Elem ici : ce sera fait lorsque l'Ã©lÃ©ment sera plus tard retirÃ©. }
+      { ajout d'une entrée dans la liste des pointeurs. Notez le transtypage implicite
+        de Elem en type Pointer. Notez également qu'on ne DOIT PAS appeler Dispose
+        sur Elem ici : ce sera fait lorsque l'élément sera plus tard retiré. }
       fElems.Add(Elem);
     end;
 end;
@@ -86,7 +84,7 @@ function TableauAssociatif.obtenirValeur(Cle: string): string;
 var
   Elem: PElementTableauAssociatif;
 begin
-  // recherche d'une entrÃ©e comportant la clÃ© transmise
+  // recherche d'une entrée comportant la clé transmise
   Elem := rechercheElem(Cle);
   if Elem <> nil then
     Result := Elem^.Valeur
@@ -100,15 +98,15 @@ var
 begin
   indx := 0;
   Result := nil;
-  { recherche jusqu'Ã  ce que Result soit modifiÃ© (clÃ© trouvÃ©e) ou qu'il n'y ait plus aucun
-    Ã©lÃ©ment Ã  trouver. Remarquez le choix du while bien prÃ©fÃ©rable Ã  un for. }
+  { recherche jusqu'à ce que Result soit modifié (clé trouvée) ou qu'il n'y ait plus aucun
+    élément à trouver. Remarquez le choix du while bien préférable à un for. }
   while (indx < fElems.Count) and (Result = nil) do
     begin
-      { remarquez que Items est une propriÃ©tÃ© tableau par dÃ©faut et que l'on
-        pourrait Ã©crire fElems[indx] Ã  la place de fElems.Items[indx].
-        Remarquez le transtypae et la comparaison dans la foulÃ©e... }
+      { remarquez que Items est une propriété tableau par défaut et que l'on
+        pourrait écrire fElems[indx] à la place de fElems.Items[indx].
+        Remarquez le transtypae et la comparaison dans la foulée... }
       if PElementTableauAssociatif(fElems.Items[indx])^.Cle = Cle then
-        // ici, on exploite le cotÃ© "par dÃ©faut" de Items
+        // ici, on exploite le coté "par défaut" de Items
         Result := fElems[indx];
       inc(indx);
     end;
@@ -118,7 +116,7 @@ procedure TableauAssociatif.RetirerElement(Cle: string);
 var
   Elem: PElementTableauAssociatif;
 begin
-  // recherche d'une entrÃ©e comportant la clÃ© transmise
+  // recherche d'une entrée comportant la clé transmise
   Elem := rechercheElem(Cle);
   if Elem <> nil then
     begin

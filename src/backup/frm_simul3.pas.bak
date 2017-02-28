@@ -353,7 +353,11 @@ var i:integer;
 
 
 begin
-
+parser:=TcyMathParser.Create(self);
+parser.Variables.SetValue('A',1);
+parser.Variables.SetValue('B',1);
+parser.Expression:='A ou B';
+if parser.Parse then self.caption:=floattostr(parser.ParserResult);
 self.placer.Checked:=true;
 self.placerClick(self);
 

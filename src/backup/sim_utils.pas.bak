@@ -1,7 +1,5 @@
 unit sim_utils;
 
-{$MODE Delphi}
-
 
 interface
 uses tabassoc, sysutils, classes,strutils;
@@ -133,7 +131,7 @@ begin
             if pos('Binary:',s)>0 then
             begin
               flag:=false;
-              //writeln(f2,'NÂ°: '+inttostr(i)+' pos: '+inttostr(f.position)+' size: '+inttostr(f.size)+' variables: '+inttostr(vr)+' points: '+inttostr(points)+' octets: '
+              //writeln(f2,'N°: '+inttostr(i)+' pos: '+inttostr(f.position)+' size: '+inttostr(f.size)+' variables: '+inttostr(vr)+' points: '+inttostr(points)+' octets: '
               //+inttostr((f.size-f.position) div (points*vr)));
               break;
             end;

@@ -1,7 +1,4 @@
 unit schema_utils;
-
-{$MODE Delphi}
-
 interface
 
 uses
